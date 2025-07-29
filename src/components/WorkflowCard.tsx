@@ -72,13 +72,18 @@ export const WorkflowCard: React.FC<WorkflowCardProps> = ({
   };
 
   return (
-    <div className="bg-gray-800 rounded-xl shadow-sm border border-gray-700">
-      <div className="p-6 border-b border-gray-700">
+    <div className="bg-gradient-to-br from-gray-800/60 to-gray-900/60 backdrop-blur-sm rounded-2xl shadow-2xl border border-purple-500/20 overflow-hidden relative">
+      {/* Decorative gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-blue-500/5 pointer-events-none"></div>
+      
+      <div className="relative p-6 border-b border-purple-500/20">
         <div className="flex items-center mb-3">
-          <span className="text-3xl mr-4">{workflow.emoji}</span>
+          <div className="bg-gradient-to-br from-purple-500/20 to-blue-500/20 p-4 rounded-xl mr-4 border border-purple-400/30 shadow-lg">
+            <span className="text-4xl filter drop-shadow-lg">{workflow.emoji}</span>
+          </div>
           <div>
-            <h2 className="text-xl font-semibold text-white">{workflow.title}</h2>
-            <p className="text-gray-300 text-sm mt-1">{workflow.description}</p>
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-purple-300 to-blue-300 bg-clip-text text-transparent">{workflow.title}</h2>
+            <p className="text-purple-200 text-sm mt-1">{workflow.description}</p>
           </div>
         </div>
 
@@ -88,7 +93,7 @@ export const WorkflowCard: React.FC<WorkflowCardProps> = ({
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder={workflow.placeholder}
-              className="w-full h-32 p-4 border border-gray-600 bg-gray-700 text-white rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400"
+              className="w-full h-32 p-4 border border-purple-500/30 bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm text-white rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-purple-400 placeholder-purple-300/60 shadow-inner"
             />
             
             {workflow.id === 'summarizer' && (
@@ -102,7 +107,7 @@ export const WorkflowCard: React.FC<WorkflowCardProps> = ({
                 />
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="inline-flex items-center px-3 py-2 text-sm text-gray-300 hover:text-white transition-colors"
+                  className="inline-flex items-center px-4 py-2 text-sm bg-gradient-to-r from-indigo-500/20 to-purple-500/20 text-indigo-300 hover:text-white transition-all duration-300 rounded-lg border border-indigo-400/30 hover:border-indigo-400/60 backdrop-blur-sm"
                 >
                   <Upload className="w-4 h-4 mr-2" />
                   Upload File (.txt or .pdf)
@@ -112,13 +117,13 @@ export const WorkflowCard: React.FC<WorkflowCardProps> = ({
           </div>
 
           <div className="flex items-center justify-between">
-            <div className="text-sm text-gray-400">
+            <div className="text-sm text-purple-300/80">
               {input.length} characters
             </div>
             <button
               onClick={handleGenerate}
               disabled={!input.trim() || isLoading}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center"
+              className="px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:from-purple-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center shadow-lg hover:shadow-purple-500/25 transform hover:scale-105"
             >
               {isLoading ? (
                 <>
@@ -134,23 +139,26 @@ export const WorkflowCard: React.FC<WorkflowCardProps> = ({
       </div>
 
       {error && (
-        <div className="p-4 bg-red-900/20 border-l-4 border-red-500">
+        <div className="relative p-4 bg-gradient-to-r from-red-900/30 to-pink-900/30 backdrop-blur-sm border-l-4 border-red-400 rounded-r-xl">
           <div className="flex">
             <div className="ml-3">
-              <p className="text-sm text-red-300">{error}</p>
+              <p className="text-sm text-red-200">{error}</p>
             </div>
           </div>
         </div>
       )}
 
       {result && (
-        <div className="p-6">
+        <div className="relative p-6 bg-gradient-to-br from-green-900/10 to-emerald-900/10">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-lg font-medium text-white">Result</h3>
+            <h3 className="text-xl font-bold bg-gradient-to-r from-green-300 to-emerald-300 bg-clip-text text-transparent flex items-center">
+              <Sparkles className="w-5 h-5 mr-2 text-green-400" />
+              Generated Result
+            </h3>
             <div className="flex items-center space-x-2">
               <button
                 onClick={copyToClipboard}
-                className="p-2 text-gray-300 hover:text-white transition-colors"
+                className="p-3 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-blue-300 hover:text-white transition-all duration-300 rounded-lg border border-blue-400/30 hover:border-blue-400/60 backdrop-blur-sm"
                 title="Copy to clipboard"
               >
                 {copiedToClipboard ? (
@@ -161,15 +169,15 @@ export const WorkflowCard: React.FC<WorkflowCardProps> = ({
               </button>
               <button
                 onClick={downloadResult}
-                className="p-2 text-gray-300 hover:text-white transition-colors"
+                className="p-3 bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-300 hover:text-white transition-all duration-300 rounded-lg border border-green-400/30 hover:border-green-400/60 backdrop-blur-sm"
                 title="Download as text file"
               >
                 <Download className="w-4 h-4" />
               </button>
             </div>
           </div>
-          <div className="p-4 bg-gray-900 rounded-lg border border-gray-600">
-            <pre className="whitespace-pre-wrap text-sm text-gray-200 font-sans">
+          <div className="p-6 bg-gradient-to-br from-gray-900/80 to-black/60 backdrop-blur-sm rounded-xl border border-green-400/20 shadow-inner">
+            <pre className="whitespace-pre-wrap text-sm text-green-100 font-sans leading-relaxed">
               {result}
             </pre>
           </div>
