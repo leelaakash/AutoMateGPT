@@ -1,1 +1,1 @@
-AutoMateGPT
+AutoMateGPT-Workflow assist
