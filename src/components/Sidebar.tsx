@@ -1,6 +1,7 @@
 import React from 'react';
-import { Settings, History, Trash2, Download, Key } from 'lucide-react';
+import { Settings, History, Trash2, Download, Key, LogOut, User } from 'lucide-react';
 import { WORKFLOW_TEMPLATES } from '../config/workflows';
+import { User as UserType } from '../types';
 
 interface SidebarProps {
   selectedWorkflow: string;
@@ -9,6 +10,9 @@ interface SidebarProps {
   onShowHistory: () => void;
   onClearHistory: () => void;
   onExportHistory: () => void;
+  hasApiKey?: boolean;
+  user?: UserType;
+  onSignOut?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -18,18 +22,33 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onShowHistory,
   onClearHistory,
   onExportHistory,
+  hasApiKey = true,
+  user,
+  onSignOut,
 }) => {
   return (
     <div className="w-80 bg-gray-900 border-r border-gray-700 flex flex-col">
       <div className="p-6 border-b border-gray-700">
         <h1 className="text-2xl font-bold text-white mb-2">AutoMateGPT</h1>
         <p className="text-gray-300 text-sm">AI Workflow Assistant</p>
-        <div className="mt-3 p-3 bg-green-900/20 border border-green-600 rounded-lg">
-          <div className="flex items-center text-green-300 text-sm">
-            <Key className="w-4 h-4 mr-2" />
-            <span>API key configured</span>
+        
+        {user && (
+          <div className="mt-3 p-3 bg-blue-900/20 border border-blue-600 rounded-lg">
+            <div className="flex items-center text-blue-300 text-sm">
+              <User className="w-4 h-4 mr-2" />
+              <span>{user.name}</span>
+            </div>
           </div>
-        </div>
+        )}
+        
+        {hasApiKey && (
+          <div className="mt-3 p-3 bg-green-900/20 border border-green-600 rounded-lg">
+            <div className="flex items-center text-green-300 text-sm">
+              <Key className="w-4 h-4 mr-2" />
+              <span>AI models configured</span>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="flex-1 p-4">
@@ -91,6 +110,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <Trash2 className="w-4 h-4 mr-3" />
           <span className="text-sm">Clear History</span>
         </button>
+        
+        {onSignOut && (
+          <button
+            onClick={onSignOut}
+            className="w-full flex items-center p-3 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors border-t border-gray-700 mt-2 pt-4"
+          >
+            <LogOut className="w-4 h-4 mr-3" />
+            <span className="text-sm">Sign Out</span>
+          </button>
+        )}
       </div>
     </div>
   );

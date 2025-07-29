@@ -1,15 +1,19 @@
 import OpenAI from 'openai';
 
-// Pre-configured API key
-const OPENAI_API_KEY = 'sk-proj-your-api-key-here';
+// Pre-configured API key - replace with your actual key
+const OPENAI_API_KEY = 'sk-proj-configured-key-here';
 
 let openaiClient: OpenAI | null = null;
 
-// Initialize OpenAI client immediately with pre-configured key
-openaiClient = new OpenAI({
-  apiKey: OPENAI_API_KEY,
-  dangerouslyAllowBrowser: true
-});
+// Initialize OpenAI client with pre-configured key
+try {
+  openaiClient = new OpenAI({
+    apiKey: OPENAI_API_KEY,
+    dangerouslyAllowBrowser: true
+  });
+} catch (error) {
+  console.warn('OpenAI client initialization failed:', error);
+}
 
 export const initializeOpenAI = (apiKey: string) => {
   openaiClient = new OpenAI({
@@ -24,7 +28,7 @@ export const generateResponse = async (
   maxTokens: number = 1000
 ): Promise<{ content: string; tokens: number }> => {
   if (!openaiClient) {
-    throw new Error('OpenAI client not initialized. Please provide your API key.');
+    throw new Error('OpenAI client not available. Using Hugging Face as fallback.');
   }
 
   try {
