@@ -44,14 +44,22 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
       let tokens: number;
       
       try {
+        console.log('Attempting Hugging Face API call...');
         const hfResponse = await generateHuggingFaceResponse(prompt, settings.maxTokens);
         content = hfResponse.content;
         tokens = hfResponse.tokens;
+        console.log('Hugging Face API success:', content.substring(0, 100) + '...');
       } catch (hfError) {
-        console.warn('Hugging Face API failed, falling back to OpenAI:', hfError);
-        const openaiResponse = await generateResponse(prompt, settings.model, settings.maxTokens);
-        content = openaiResponse.content;
-        tokens = openaiResponse.tokens;
+        console.warn('Hugging Face API failed, trying OpenAI fallback:', hfError);
+        try {
+          const openaiResponse = await generateResponse(prompt, settings.model, settings.maxTokens);
+          content = openaiResponse.content;
+          tokens = openaiResponse.tokens;
+          console.log('OpenAI API success:', content.substring(0, 100) + '...');
+        } catch (openaiError) {
+          console.error('Both APIs failed:', openaiError);
+          throw new Error('Both AI services are currently unavailable. Please try again later.');
+        }
       }
       
       setResult(content);

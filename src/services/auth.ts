@@ -12,13 +12,21 @@ export const signIn = (name: string, email: string, password: string): Promise<U
         return;
       }
 
-      if (!email.includes('@')) {
+      // Enhanced email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
         reject(new Error('Please enter a valid email address'));
         return;
       }
 
-      if (password.length < 6) {
-        reject(new Error('Password must be at least 6 characters'));
+      if (password.length < 8) {
+        reject(new Error('Password must be at least 8 characters long'));
+        return;
+      }
+
+      // Password strength validation
+      if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
+        reject(new Error('Password must contain at least one uppercase letter, one lowercase letter, and one number'));
         return;
       }
 

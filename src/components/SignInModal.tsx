@@ -27,6 +27,27 @@ export const SignInModal: React.FC<SignInModalProps> = ({
     setIsLoading(true);
     setError(null);
 
+    // Simple email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError('Please enter a valid email address');
+      setIsLoading(false);
+      return;
+    }
+
+    // Password strength validation
+    if (formData.password.length < 8) {
+      setError('Password must be at least 8 characters long');
+      setIsLoading(false);
+      return;
+    }
+
+    if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
+      setError('Password must contain at least one uppercase letter, one lowercase letter, and one number');
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const user = await signIn(formData.name, formData.email, formData.password);
       onSignIn(user);
