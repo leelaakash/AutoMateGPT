@@ -1,5 +1,5 @@
 import React from 'react';
-import { Settings, History, Trash2, Download, Key, LogOut, User } from 'lucide-react';
+import { Settings, History, Trash2, Download, Key, LogOut, User, Sparkles, Zap } from 'lucide-react';
 import { WORKFLOW_TEMPLATES } from '../config/workflows';
 import { User as UserType } from '../types';
 
