@@ -18,6 +18,7 @@ interface DashboardProps {
 
 export const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
   const [selectedWorkflow, setSelectedWorkflow] = useState(WORKFLOW_TEMPLATES[0].id);
+  const [workflowInputs, setWorkflowInputs] = useState<Record<string, string>>({});
   const [settings, setSettings] = useState<AppSettings>({
     ...getSettings(),
     apiKey: 'sk-proj-configured'
@@ -104,6 +105,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
     setSelectedWorkflow(workflowId);
     setResult(null);
     setError(null);
+  };
+
+  const handleInputChange = (workflowId: string, input: string) => {
+    setWorkflowInputs(prev => ({
+      ...prev,
+      [workflowId]: input
+    }));
   };
 
   const handleSignOut = () => {
@@ -219,6 +227,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
 
           <WorkflowCard
             workflow={currentWorkflow}
+            input={workflowInputs[selectedWorkflow] || ''}
+            onInputChange={(input) => handleInputChange(selectedWorkflow, input)}
             onGenerate={handleGenerate}
             isLoading={isLoading}
             result={result}

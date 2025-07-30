@@ -5,6 +5,8 @@ import { readFileAsText, validateFile } from '../utils/fileReader';
 
 interface WorkflowCardProps {
   workflow: WorkflowTemplate;
+  input: string;
+  onInputChange: (input: string) => void;
   onGenerate: (input: string) => Promise<void>;
   isLoading: boolean;
   result: string | null;
@@ -13,12 +15,13 @@ interface WorkflowCardProps {
 
 export const WorkflowCard: React.FC<WorkflowCardProps> = ({
   workflow,
+  input,
+  onInputChange,
   onGenerate,
   isLoading,
   result,
   error
 }) => {
-  const [input, setInput] = useState('');
   const [copiedToClipboard, setCopiedToClipboard] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -34,7 +37,7 @@ export const WorkflowCard: React.FC<WorkflowCardProps> = ({
 
     try {
       const text = await readFileAsText(file);
-      setInput(text);
+      onInputChange(text);
     } catch (error) {
       alert(error instanceof Error ? error.message : 'Failed to read file');
     }
@@ -91,7 +94,7 @@ export const WorkflowCard: React.FC<WorkflowCardProps> = ({
           <div className="relative">
             <textarea
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+              onChange={(e) => onInputChange(e.target.value)}
               placeholder={workflow.placeholder}
               className="w-full h-32 p-4 border border-purple-500/30 bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-sm text-white rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-purple-400 placeholder-purple-300/60 shadow-inner"
             />

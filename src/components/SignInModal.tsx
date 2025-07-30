@@ -27,7 +27,13 @@ export const SignInModal: React.FC<SignInModalProps> = ({
     setIsLoading(true);
     setError(null);
 
-    // Simple email validation
+    // Enhanced validation
+    if (!formData.name.trim()) {
+      setError('Name is required');
+      setIsLoading(false);
+      return;
+    }
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       setError('Please enter a valid email address');
@@ -35,7 +41,6 @@ export const SignInModal: React.FC<SignInModalProps> = ({
       return;
     }
 
-    // Password strength validation
     if (formData.password.length < 8) {
       setError('Password must be at least 8 characters long');
       setIsLoading(false);
@@ -44,6 +49,15 @@ export const SignInModal: React.FC<SignInModalProps> = ({
 
     if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
       setError('Password must contain at least one uppercase letter, one lowercase letter, and one number');
+      setIsLoading(false);
+      return;
+    }
+
+    // Simulate email verification
+    const commonDomains = ['gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'icloud.com'];
+    const emailDomain = formData.email.split('@')[1];
+    if (!commonDomains.includes(emailDomain)) {
+      setError('Please use a valid email provider (Gmail, Yahoo, Outlook, etc.)');
       setIsLoading(false);
       return;
     }
