@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Upload, Loader2, Copy, Check, Download, FileText } from 'lucide-react';
+import { Upload, Loader2, Copy, Check, Download, FileText, Sparkles } from 'lucide-react';
 import { WorkflowTemplate } from '../types';
 import { readFileAsText, validateFile } from '../utils/fileReader';
 
