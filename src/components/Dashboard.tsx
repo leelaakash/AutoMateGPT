@@ -40,26 +40,30 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
     try {
       const prompt = currentWorkflow.prompt.replace('{input}', input);
       
-      // Use Hugging Face API as primary, fallback to OpenAI
       let content: string;
       let tokens: number;
       
       try {
-        console.log('Attempting Hugging Face API call...');
-        const hfResponse = await generateHuggingFaceResponse(prompt, settings.maxTokens);
-        content = hfResponse.content;
-        tokens = hfResponse.tokens;
-        console.log('Hugging Face API success:', content.substring(0, 100) + '...');
-      } catch (hfError) {
-        console.warn('Hugging Face API failed, trying OpenAI fallback:', hfError);
+        // Try OpenAI API first
+        console.log('Attempting OpenAI API call...');
+        const openaiResponse = await generateResponse(prompt, settings.model, settings.maxTokens);
+        content = openaiResponse.content;
+        tokens = openaiResponse.tokens;
+        console.log('OpenAI API success');
+      } catch (openaiError) {
+        console.warn('OpenAI API failed, trying Hugging Face fallback:', openaiError);
         try {
-          const openaiResponse = await generateResponse(prompt, settings.model, settings.maxTokens);
-          content = openaiResponse.content;
-          tokens = openaiResponse.tokens;
-          console.log('OpenAI API success:', content.substring(0, 100) + '...');
-        } catch (openaiError) {
-          console.error('Both APIs failed:', openaiError);
-          throw new Error('Both AI services are currently unavailable. Please try again later.');
+          const hfResponse = await generateHuggingFaceResponse(prompt, settings.maxTokens);
+          content = hfResponse.content;
+          tokens = hfResponse.tokens;
+          console.log('Hugging Face API success');
+        } catch (hfError) {
+          console.error('Both APIs failed, using intelligent fallback');
+          // Import the fallback function
+          const { generateFallbackResponse } = await import('../services/openai');
+          const fallbackResponse = await generateFallbackResponse(prompt, settings.maxTokens);
+          content = fallbackResponse.content;
+          tokens = fallbackResponse.tokens;
         }
       }
       
@@ -86,6 +90,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
   const handleSaveSettings = (newSettings: AppSettings) => {
     setSettings(newSettings);
     saveSettings(newSettings);
+    
+    // Initialize OpenAI client with new API key if provided
+    if (newSettings.apiKey && newSettings.apiKey.startsWith('sk-')) {
+      const { initializeOpenAI } = require('../services/openai');
+      initializeOpenAI(newSettings.apiKey);
+    }
   };
 
   const handleClearHistory = () => {

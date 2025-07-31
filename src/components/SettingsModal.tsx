@@ -52,12 +52,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             </label>
             <input
               type="password"
-              value="sk-proj-configured"
-              disabled
+              value={formData.apiKey}
+              onChange={(e) => setFormData({ ...formData, apiKey: e.target.value })}
+              placeholder="Enter your OpenAI API key (sk-...)"
               className="w-full p-3 border border-gray-600 bg-gray-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400"
             />
             <p className="text-xs text-gray-400 mt-2">
-              API key is pre-configured for this application.
+              Enter your OpenAI API key for real AI responses. Leave empty to use demo responses.
             </p>
           </div>
 
