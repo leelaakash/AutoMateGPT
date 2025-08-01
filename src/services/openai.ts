@@ -22,13 +22,6 @@ export const generateResponse = async (
   model: string = 'gpt-3.5-turbo',
   maxTokens: number = 1000
 ): Promise<{ content: string; tokens: number }> => {
-  // If no API key is configured, try with a demo key first
-  if (!openaiClient) {
-    // Try to initialize with a demo key for testing
-    const demoKey = 'sk-proj-demo-key-for-testing-purposes-only';
-    initializeOpenAI(demoKey);
-  }
-
   try {
     if (!openaiClient) {
       throw new Error('OpenAI client not initialized. Please provide a valid API key.');

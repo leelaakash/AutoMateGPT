@@ -19,10 +19,7 @@ interface DashboardProps {
 export const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
   const [selectedWorkflow, setSelectedWorkflow] = useState(WORKFLOW_TEMPLATES[0].id);
   const [workflowInputs, setWorkflowInputs] = useState<Record<string, string>>({});
-  const [settings, setSettings] = useState<AppSettings>({
-    ...getSettings(),
-    apiKey: 'sk-proj-configured'
-  });
+  const [settings, setSettings] = useState<AppSettings>(getSettings());
   const [history, setHistory] = useState<WorkflowResult[]>(getHistory());
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<string | null>(null);
