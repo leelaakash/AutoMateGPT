@@ -5,7 +5,7 @@ import { WorkflowCard } from './WorkflowCard';
 import { SettingsModal } from './SettingsModal';
 import { HistoryModal } from './HistoryModal';
 import { WORKFLOW_TEMPLATES } from '../config/workflows';
-import { generateResponse } from '../services/openai';
+import { generateResponse, initializeOpenAI } from '../services/openai';
 import { generateHuggingFaceResponse } from '../services/huggingface';
 import { saveResult, getHistory, clearHistory, exportHistory, saveSettings, getSettings } from '../services/storage';
 import { signOut } from '../services/auth';
@@ -28,6 +28,13 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
   const [showHistory, setShowHistory] = useState(false);
 
   const currentWorkflow = WORKFLOW_TEMPLATES.find(w => w.id === selectedWorkflow)!;
+
+  useEffect(() => {
+    // Initialize OpenAI client if API key exists
+    if (settings.apiKey && settings.apiKey.startsWith('sk-')) {
+      initializeOpenAI(settings.apiKey);
+    }
+  }, [settings.apiKey]);
 
   const handleGenerate = async (input: string) => {
     setIsLoading(true);
@@ -90,7 +97,6 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
     
     // Initialize OpenAI client with new API key if provided
     if (newSettings.apiKey && newSettings.apiKey.startsWith('sk-')) {
-      const { initializeOpenAI } = require('../services/openai');
       initializeOpenAI(newSettings.apiKey);
     }
   };
