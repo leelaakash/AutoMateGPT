@@ -32,12 +32,22 @@ export const generateResponse = async (
     console.log('Max tokens:', maxTokens);
     console.log('Prompt preview:', prompt.substring(0, 100) + '...');
 
+    // Enhanced system prompt for better analysis
+    const systemPrompt = `You are an expert AI assistant specialized in document analysis, content creation, and task management. 
+    
+    For document summarization: Provide structured summaries with key points, main themes, and actionable insights.
+    For email generation: Create professional, well-formatted emails with appropriate tone and structure.
+    For idea expansion: Develop comprehensive plans with implementation steps and considerations.
+    For task creation: Generate specific, actionable, and prioritized task lists.
+    
+    Always format your responses with clear headings, bullet points, and proper structure. Be thorough but concise.`;
+
     const completion = await openaiClient.chat.completions.create({
       model: model,
       messages: [
         {
           role: 'system',
-          content: 'You are a helpful AI assistant that provides accurate, well-structured responses. Format your responses with clear headings, bullet points, and proper structure when appropriate.'
+          content: systemPrompt
         },
         {
           role: 'user',
@@ -46,6 +56,8 @@ export const generateResponse = async (
       ],
       max_tokens: maxTokens,
       temperature: 0.7,
+      presence_penalty: 0.1,
+      frequency_penalty: 0.1
     });
 
     const content = completion.choices[0]?.message?.content || 'No response generated';

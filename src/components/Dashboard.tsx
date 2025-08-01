@@ -82,8 +82,9 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
         tokens
       };
 
-      saveResult(workflowResult);
-      setHistory(getHistory());
+      // Save result with user ID for better organization
+      saveResult(workflowResult, user.id);
+      setHistory(getHistory(user.id));
     } catch (error) {
       setError(error instanceof Error ? error.message : 'An error occurred');
     } finally {
@@ -93,7 +94,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
 
   const handleSaveSettings = (newSettings: AppSettings) => {
     setSettings(newSettings);
-    saveSettings(newSettings);
+    saveSettings(newSettings, user.id);
     
     // Initialize OpenAI client with new API key if provided
     if (newSettings.apiKey && newSettings.apiKey.startsWith('sk-')) {
@@ -103,7 +104,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
 
   const handleClearHistory = () => {
     if (confirm('Are you sure you want to clear all history? This cannot be undone.')) {
-      clearHistory();
+      clearHistory(user.id);
       setHistory([]);
     }
   };
@@ -131,6 +132,12 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
     signOut();
     onSignOut();
   };
+
+  // Load user-specific data on mount
+  useEffect(() => {
+    setHistory(getHistory(user.id));
+    setSettings(getSettings(user.id));
+  }, [user.id]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex">
