@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { HomePage } from './components/HomePage';
-import { SignInModal } from './components/SignInModal';
+import { AuthModal } from './components/AuthModal';
 import { Dashboard } from './components/Dashboard';
 import { getAuthState } from './services/auth';
 import { AuthState, User } from './types';
@@ -32,7 +32,7 @@ function App() {
     return (
       <>
         <HomePage onSignInClick={() => setShowSignIn(true)} />
-        <SignInModal
+        <AuthModal
           isOpen={showSignIn}
           onClose={() => setShowSignIn(false)}
           onSignIn={handleSignIn}

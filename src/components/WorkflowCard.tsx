@@ -30,22 +30,38 @@ export const WorkflowCard: React.FC<WorkflowCardProps> = ({
     const file = event.target.files?.[0];
     if (!file) return;
 
+    console.log('File selected:', file.name, file.type, file.size);
+
     const validationError = validateFile(file);
     if (validationError) {
       alert(validationError);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
       return;
     }
 
     setIsProcessingFile(true);
     try {
+      console.log('Starting file processing...');
       const text = await readFileAsText(file);
+      console.log('File processed successfully, text length:', text.length);
+      
       // Add file info to the extracted text
-      const fileInfo = `[File: ${file.name} (${(file.size / 1024).toFixed(1)}KB)]\n\n${text}`;
+      const fileInfo = `[Uploaded File: ${file.name} (${(file.size / 1024).toFixed(1)}KB, ${file.type})]\n\n${text}`;
       onInputChange(fileInfo);
+      
+      // Show success message
+      alert(`File "${file.name}" processed successfully! ${text.length} characters extracted.`);
     } catch (error) {
-      alert(error instanceof Error ? error.message : 'Failed to read file');
+      console.error('File processing error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to read file';
+      alert(`Error processing file: ${errorMessage}`);
     } finally {
       setIsProcessingFile(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
@@ -117,7 +133,7 @@ export const WorkflowCard: React.FC<WorkflowCardProps> = ({
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isProcessingFile}
-                  className="inline-flex items-center px-4 py-2 text-sm bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-300 hover:text-white transition-all duration-300 rounded-lg border border-cyan-400/30 hover:border-cyan-400/60 backdrop-blur-sm disabled:opacity-50"
+                  className="inline-flex items-center px-4 py-2 text-sm bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-300 hover:text-white transition-all duration-300 rounded-lg border border-cyan-400/30 hover:border-cyan-400/60 backdrop-blur-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isProcessingFile ? (
                     <>
@@ -127,7 +143,7 @@ export const WorkflowCard: React.FC<WorkflowCardProps> = ({
                   ) : (
                     <>
                       <Upload className="w-4 h-4 mr-2" />
-                      Upload File (.txt, .pdf, .csv)
+                      Upload File (.txt, .pdf, .csv, .doc, .docx)
                     </>
                   )}
                 </button>
