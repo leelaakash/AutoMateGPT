@@ -47,22 +47,41 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, onSignOut }) => {
       let content: string;
       let tokens: number;
       
-      try {
-        // Try OpenAI API first
-        console.log('Attempting OpenAI API call...');
-        const openaiResponse = await generateResponse(prompt, settings.model, settings.maxTokens);
-        content = openaiResponse.content;
-        tokens = openaiResponse.tokens;
-        console.log('OpenAI API success');
-      } catch (openaiError) {
-        console.warn('OpenAI API failed, trying Hugging Face fallback:', openaiError);
+      // Only try OpenAI API if we have a valid API key
+      if (settings.apiKey && settings.apiKey.startsWith('sk-')) {
+        try {
+          // Try OpenAI API first
+          console.log('Attempting OpenAI API call...');
+          const openaiResponse = await generateResponse(prompt, settings.model, settings.maxTokens);
+          content = openaiResponse.content;
+          tokens = openaiResponse.tokens;
+          console.log('OpenAI API success');
+        } catch (openaiError) {
+          console.warn('OpenAI API failed, trying Hugging Face fallback:', openaiError);
+          try {
+            const hfResponse = await generateHuggingFaceResponse(prompt, settings.maxTokens);
+            content = hfResponse.content;
+            tokens = hfResponse.tokens;
+            console.log('Hugging Face API success');
+          } catch (hfError) {
+            console.error('Both APIs failed, using intelligent fallback');
+            // Import the fallback function
+            const { generateFallbackResponse } = await import('../services/openai');
+            const fallbackResponse = await generateFallbackResponse(prompt, settings.maxTokens);
+            content = fallbackResponse.content;
+            tokens = fallbackResponse.tokens;
+          }
+        }
+      } else {
+        // No valid OpenAI API key, skip directly to Hugging Face
+        console.log('No valid OpenAI API key, trying Hugging Face...');
         try {
           const hfResponse = await generateHuggingFaceResponse(prompt, settings.maxTokens);
           content = hfResponse.content;
           tokens = hfResponse.tokens;
           console.log('Hugging Face API success');
         } catch (hfError) {
-          console.error('Both APIs failed, using intelligent fallback');
+          console.error('Hugging Face API failed, using intelligent fallback');
           // Import the fallback function
           const { generateFallbackResponse } = await import('../services/openai');
           const fallbackResponse = await generateFallbackResponse(prompt, settings.maxTokens);
