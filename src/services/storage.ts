@@ -11,9 +11,17 @@ export const saveResult = (result: WorkflowResult, userId?: string): void => {
   try {
     const history = getHistory(userId);
     
+    // Truncate large content to prevent quota issues
+    const truncateContent = (content: string, maxLength: number = 10000): string => {
+      if (content.length <= maxLength) return content;
+      return content.substring(0, maxLength) + '... [truncated]';
+    };
+    
     // Add metadata
     const enhancedResult = {
       ...result,
+      input: truncateContent(result.input || ''),
+      output: truncateContent(result.output || ''),
       userId: userId || 'anonymous',
       createdAt: new Date().toISOString(),
       sessionId: getSessionId()
@@ -21,14 +29,27 @@ export const saveResult = (result: WorkflowResult, userId?: string): void => {
     
     history.unshift(enhancedResult);
     
-    // Keep only last 100 results per user
-    const trimmedHistory = history.slice(0, 100);
+    // Keep only last 50 results per user to reduce storage usage
+    const trimmedHistory = history.slice(0, 50);
     
     const storageKey = userId ? `${STORAGE_KEYS.HISTORY}_${userId}` : STORAGE_KEYS.HISTORY;
-    localStorage.setItem(storageKey, JSON.stringify(trimmedHistory));
     
-    // Also save to a global backup for data persistence
-    saveToGlobalBackup(enhancedResult);
+    // Try to save with additional error handling
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(trimmedHistory));
+      // Also save to a global backup for data persistence
+      saveToGlobalBackup(enhancedResult);
+    } catch (quotaError) {
+      // If still quota exceeded, clear old data and try again
+      if (quotaError.name === 'QuotaExceededError') {
+        // Keep only last 20 results and try again
+        const minimalHistory = history.slice(0, 20);
+        localStorage.setItem(storageKey, JSON.stringify(minimalHistory));
+        console.warn('Storage quota exceeded. Reduced history to 20 items.');
+      } else {
+        throw quotaError;
+      }
+    }
     
   } catch (error) {
     console.error('Failed to save result:', error);
