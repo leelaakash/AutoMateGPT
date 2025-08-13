@@ -1,10 +1,12 @@
-import React, { useState, useRef } from 'react';
-import { Upload, Loader2, Copy, Check, Download, FileText } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { Upload, Loader2, Copy, Check, Download, FileText, Sparkles } from 'lucide-react';
 import { WorkflowTemplate } from '../types';
 import { readFileAsText, validateFile } from '../utils/fileReader';
 
 interface WorkflowCardProps {
   workflow: WorkflowTemplate;
+  input: string;
+  onInputChange: (input: string) => void;
   onGenerate: (input: string) => Promise<void>;
   isLoading: boolean;
   result: string | null;
@@ -13,30 +15,53 @@ interface WorkflowCardProps {
 
 export const WorkflowCard: React.FC<WorkflowCardProps> = ({
   workflow,
+  input,
+  onInputChange,
   onGenerate,
   isLoading,
   result,
   error
 }) => {
-  const [input, setInput] = useState('');
   const [copiedToClipboard, setCopiedToClipboard] = useState(false);
+  const [isProcessingFile, setIsProcessingFile] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    console.log('File selected:', file.name, file.type, file.size);
+
     const validationError = validateFile(file);
     if (validationError) {
       alert(validationError);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
       return;
     }
 
+    setIsProcessingFile(true);
     try {
+      console.log('Starting file processing...');
       const text = await readFileAsText(file);
-      setInput(text);
+      console.log('File processed successfully, text length:', text.length);
+      
+      // Add file info to the extracted text
+      const fileInfo = `[Uploaded File: ${file.name} (${(file.size / 1024).toFixed(1)}KB, ${file.type})]\n\n${text}`;
+      onInputChange(fileInfo);
+      
+      // Show success message
+      alert(`File "${file.name}" processed successfully! ${text.length} characters extracted.`);
     } catch (error) {
-      alert(error instanceof Error ? error.message : 'Failed to read file');
+      console.error('File processing error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to read file';
+      alert(`Error processing file: ${errorMessage}`);
+    } finally {
+      setIsProcessingFile(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
@@ -72,13 +97,18 @@ export const WorkflowCard: React.FC<WorkflowCardProps> = ({
   };
 
   return (
-    <div className="bg-gray-800 rounded-xl shadow-sm border border-gray-700">
-      <div className="p-6 border-b border-gray-700">
+    <div className="bg-gradient-to-br from-slate-800/80 via-blue-900/60 to-indigo-900/80 backdrop-blur-sm rounded-2xl shadow-2xl border border-blue-400/30 overflow-hidden relative">
+      {/* Decorative gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-blue-500/5 to-indigo-500/10 pointer-events-none"></div>
+      
+      <div className="relative p-6 border-b border-blue-400/30">
         <div className="flex items-center mb-3">
-          <span className="text-3xl mr-4">{workflow.emoji}</span>
+          <div className="bg-gradient-to-br from-cyan-500/30 to-blue-500/30 p-4 rounded-xl mr-4 border border-cyan-400/40 shadow-lg">
+            <span className="text-4xl filter drop-shadow-lg">{workflow.emoji}</span>
+          </div>
           <div>
-            <h2 className="text-xl font-semibold text-white">{workflow.title}</h2>
-            <p className="text-gray-300 text-sm mt-1">{workflow.description}</p>
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-cyan-300 to-blue-300 bg-clip-text text-transparent">{workflow.title}</h2>
+            <p className="text-blue-200 text-sm mt-1">{workflow.description}</p>
           </div>
         </div>
 
@@ -86,9 +116,9 @@ export const WorkflowCard: React.FC<WorkflowCardProps> = ({
           <div className="relative">
             <textarea
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+              onChange={(e) => onInputChange(e.target.value)}
               placeholder={workflow.placeholder}
-              className="w-full h-32 p-4 border border-gray-600 bg-gray-700 text-white rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400"
+              className="w-full h-32 p-4 border border-blue-400/40 bg-gradient-to-br from-slate-800/90 to-slate-900/90 backdrop-blur-sm text-white rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 placeholder-blue-300/60 shadow-inner"
             />
             
             {workflow.id === 'summarizer' && (
@@ -102,23 +132,33 @@ export const WorkflowCard: React.FC<WorkflowCardProps> = ({
                 />
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="inline-flex items-center px-3 py-2 text-sm text-gray-300 hover:text-white transition-colors"
+                  disabled={isProcessingFile}
+                  className="inline-flex items-center px-4 py-2 text-sm bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-300 hover:text-white transition-all duration-300 rounded-lg border border-cyan-400/30 hover:border-cyan-400/60 backdrop-blur-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <Upload className="w-4 h-4 mr-2" />
-                  Upload File (.txt or .pdf)
+                  {isProcessingFile ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Processing...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-4 h-4 mr-2" />
+                      Upload File (.txt, .pdf, .csv, .doc, .docx)
+                    </>
+                  )}
                 </button>
               </div>
             )}
           </div>
 
           <div className="flex items-center justify-between">
-            <div className="text-sm text-gray-400">
+            <div className="text-sm text-purple-300/80">
               {input.length} characters
             </div>
             <button
               onClick={handleGenerate}
               disabled={!input.trim() || isLoading}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center"
+              className="px-8 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-xl hover:from-cyan-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center shadow-lg hover:shadow-cyan-500/25 transform hover:scale-105"
             >
               {isLoading ? (
                 <>
@@ -134,42 +174,45 @@ export const WorkflowCard: React.FC<WorkflowCardProps> = ({
       </div>
 
       {error && (
-        <div className="p-4 bg-red-900/20 border-l-4 border-red-500">
+        <div className="relative p-4 bg-gradient-to-r from-red-900/40 to-pink-900/40 backdrop-blur-sm border-l-4 border-red-400 rounded-r-xl">
           <div className="flex">
             <div className="ml-3">
-              <p className="text-sm text-red-300">{error}</p>
+              <p className="text-sm text-red-200">{error}</p>
             </div>
           </div>
         </div>
       )}
 
       {result && (
-        <div className="p-6">
+        <div className="relative p-6 bg-gradient-to-br from-emerald-900/20 to-teal-900/20">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="text-lg font-medium text-white">Result</h3>
+            <h3 className="text-xl font-bold bg-gradient-to-r from-emerald-300 to-teal-300 bg-clip-text text-transparent flex items-center">
+              <Sparkles className="w-5 h-5 mr-2 text-emerald-400" />
+              Generated Result
+            </h3>
             <div className="flex items-center space-x-2">
               <button
                 onClick={copyToClipboard}
-                className="p-2 text-gray-300 hover:text-white transition-colors"
+                className="p-3 bg-gradient-to-r from-blue-500/30 to-cyan-500/30 text-blue-300 hover:text-white transition-all duration-300 rounded-lg border border-blue-400/40 hover:border-blue-400/70 backdrop-blur-sm"
                 title="Copy to clipboard"
               >
                 {copiedToClipboard ? (
-                  <Check className="w-4 h-4 text-green-400" />
+                  <Check className="w-4 h-4 text-emerald-400" />
                 ) : (
                   <Copy className="w-4 h-4" />
                 )}
               </button>
               <button
                 onClick={downloadResult}
-                className="p-2 text-gray-300 hover:text-white transition-colors"
+                className="p-3 bg-gradient-to-r from-emerald-500/30 to-teal-500/30 text-emerald-300 hover:text-white transition-all duration-300 rounded-lg border border-emerald-400/40 hover:border-emerald-400/70 backdrop-blur-sm"
                 title="Download as text file"
               >
                 <Download className="w-4 h-4" />
               </button>
             </div>
           </div>
-          <div className="p-4 bg-gray-900 rounded-lg border border-gray-600">
-            <pre className="whitespace-pre-wrap text-sm text-gray-200 font-sans">
+          <div className="p-6 bg-gradient-to-br from-slate-900/90 to-slate-800/80 backdrop-blur-sm rounded-xl border border-emerald-400/30 shadow-inner">
+            <pre className="whitespace-pre-wrap text-sm text-emerald-100 font-sans leading-relaxed">
               {result}
             </pre>
           </div>

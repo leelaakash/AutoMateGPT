@@ -21,3 +21,15 @@ export interface AppSettings {
   model: string;
   maxTokens: number;
 }
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  signedInAt: number;
+}
+
+export interface AuthState {
+  isAuthenticated: boolean;
+  user: User | null;
+}
