@@ -1,10 +1,29 @@
-# AutoMateGPT
+# 🚀 AutoMateGPT
 
-AutoMateGPT is an AI-powered automation tool designed to streamline workflows and integrate AI into everyday tasks.  
-Built with **Vite**, **TypeScript**, and **React**, it offers a modular architecture for easy scaling and customization.
+AutoMateGPT is an AI-powered workflow assistant built with **Vite**, **React**, and **Tailwind CSS**, designed to automate everyday tasks, enhance productivity, and deliver a clean, modern UI.
+
+![AutoMateGPT Banner](https://via.placeholder.com/1000x300?text=AutoMateGPT) <!-- Replace with your actual banner image URL -->
+
+---
+
+## ✨ Features
+- 🔐 **Authentication System** — Secure sign-in & sign-up.
+- 📄 **PDF Reading** — Extract, read, and process PDF content.
+- 🖥 **Beautiful UI** — Modern and responsive interface with Tailwind CSS.
+- ⚡ **Fast & Lightweight** — Powered by Vite for blazing-fast builds.
+- 🌐 **Deployed on GitHub Pages** — Access anytime, anywhere.
 
 ---
 
 ## 📂 Project Structure
+```plaintext
+AutoMateGPT/
+│── src/               # Main application source code
+│── public/            # Static files
+│── package.json       # Project dependencies & scripts
+│── tailwind.config.js # Tailwind CSS configuration
+│── vite.config.js     # Vite configuration
+└── README.md          # Project documentation
+
 
 
