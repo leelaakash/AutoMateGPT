@@ -2,7 +2,6 @@
 
 AutoMateGPT is an AI-powered workflow assistant built with **Vite**, **React**, and **Tailwind CSS**, designed to automate everyday tasks, enhance productivity, and deliver a clean, modern UI.
 
-![AutoMateGPT Banner](https://via.placeholder.com/1000x300?text=AutoMateGPT) <!-- Replace with your actual banner image URL -->
 
 ---
 
